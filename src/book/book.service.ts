@@ -23,7 +23,7 @@ export class BooksService {
       order: {
         id: 'ASC',
       },
-      relations: ['authors'],
+      relations: ['authors', 'supplies'],
     });
   }
 
