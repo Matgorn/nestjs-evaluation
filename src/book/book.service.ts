@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthorsService } from 'src/author/author.service';
 import { Repository } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
 
@@ -14,6 +15,7 @@ export class BooksService {
   constructor(
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
+    private readonly authorsService: AuthorsService,
   ) {}
 
   async list() {
@@ -21,7 +23,7 @@ export class BooksService {
       order: {
         id: 'ASC',
       },
-      relations: ['authors', 'supplies'],
+      relations: ['authors'],
     });
   }
 
@@ -36,7 +38,10 @@ export class BooksService {
   }
 
   async create(book: CreateBookDto) {
-    const foundBook = await this.bookRepository.findBy({ isbn: book.isbn });
+    const { isbn, authorIds } = book;
+
+    const foundBook = await this.bookRepository.findBy({ isbn });
+    const foundAuthors = await this.authorsService.findMany(authorIds);
 
     if (foundBook.length > 0) {
       throw new ConflictException('Book already exists');
@@ -44,11 +49,22 @@ export class BooksService {
 
     const newBook = this.bookRepository.create(book);
 
-    return this.bookRepository.save(newBook);
+    return this.bookRepository.save({
+      ...newBook,
+      authors: foundAuthors,
+    });
   }
 
   async update(id: number, book: CreateBookDto) {
-    return await this.bookRepository.update({ id }, { ...book });
+    const foundBook = await this.findById(id);
+
+    const { id: bookId, ...bookData } = foundBook;
+
+    return this.bookRepository.save({
+      ...bookData,
+      ...book,
+      id,
+    });
   }
 
   async delete(id: number) {

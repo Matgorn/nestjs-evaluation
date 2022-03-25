@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BooksModule } from './book/book.module';
+import { AuthorsModule } from './author/author.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { BooksModule } from './book/book.module';
       synchronize: true, // your entities will be synced with the database(recommended: disable in prod)
     }),
     BooksModule,
+    AuthorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
