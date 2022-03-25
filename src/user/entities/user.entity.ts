@@ -29,7 +29,6 @@ export class User {
   }
 
   isPasswordValid(password: string) {
-    console.log(password);
     return bcrypt.compareSync(password, this.hash);
   }
 }
