@@ -5,6 +5,7 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
@@ -15,14 +16,15 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'first_name' })
   @Index()
+  @Column({ name: 'first_name' })
   firstName: string;
 
-  @Column({ name: 'last_name' })
   @Index()
+  @Column({ name: 'last_name' })
   lastName: string;
 
+  @Index({ fulltext: true, unique: true })
   @Column()
   email: string;
 
@@ -32,7 +34,7 @@ export class User {
   @Column()
   hash: string;
 
-  @ManyToMany(() => RoleEntity, (role) => role.users, { cascade: true })
+  @ManyToMany(() => RoleEntity, (role) => role.users)
   @JoinTable()
   roles: RoleEntity[];
 

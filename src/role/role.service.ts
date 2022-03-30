@@ -33,7 +33,10 @@ export class RolesService {
   }
 
   async findById(id: RoleEntity['id']) {
-    const role = await this.rolesRepository.findOneBy({ id });
+    const role = await this.rolesRepository.findOne({
+      where: { id },
+      relations: { users: true },
+    });
 
     if (!role) {
       return null;

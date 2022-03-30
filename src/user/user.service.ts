@@ -48,7 +48,9 @@ export class UserService {
   async findById(id: User['id']) {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['roles'],
+      relations: {
+        roles: true,
+      },
     });
 
     if (!user) {
@@ -59,21 +61,18 @@ export class UserService {
     return user;
   }
 
-  async update(id: User['id'], userDto: UpdateUserDto) {
-    const { roles, ...userData } = userDto;
-
+  async update(id: number, userDto: any) {
     const user = await this.findById(id);
     const foundRoles = await Promise.all(
-      roles.map(
+      userDto?.roles.map(
         async (roleName) => await this.rolesService.findByName(roleName),
       ),
     );
 
-    console.log({
-      ...userData,
-      roles: [...user.roles, ...foundRoles],
+    return await this.usersRepository.save({
+      ...user,
+      ...userDto,
+      roles: foundRoles,
     });
-
-    return await this.usersRepository.update({ id }, userData);
   }
 }
