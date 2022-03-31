@@ -11,12 +11,11 @@ export class AuthorsService {
     private readonly authorsRepository: Repository<Author>,
   ) {}
 
-  async find(id?: Author['id']) {
-    if (!id) {
-      return this.authorsRepository.find({ relations: ['books'] });
-    }
-
-    const foundAuthor = await this.authorsRepository.findOneBy({ id });
+  async findById(id: Author['id']) {
+    const foundAuthor = await this.authorsRepository.findOne({
+      where: { id },
+      relations: { books: true },
+    });
 
     if (!foundAuthor) {
       throw new NotFoundException('Author not found');
