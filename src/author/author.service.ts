@@ -48,4 +48,12 @@ export class AuthorsService {
       ...authorDto,
     });
   }
+
+  async delete(id: Author['id']) {
+    const author = await this.findById(id);
+
+    await this.authorsRepository.delete({ id });
+
+    return author;
+  }
 }
