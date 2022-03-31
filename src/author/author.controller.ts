@@ -1,9 +1,22 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/role/role.decorator';
+import { Role } from 'src/role/role.types';
 import { AuthorsService } from './author.service';
 import { AuthorDTO } from './dto/author.dto';
 import { Author } from './entities/author.entity';
 
 @Controller('authors')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AuthorsController {
   constructor(private authorsService: AuthorsService) {}
 
@@ -13,11 +26,13 @@ export class AuthorsController {
   }
 
   @Put(':id')
+  @Roles(Role.Admin)
   update(@Param('id') id: Author['id'], @Body() authorDto: any) {
     return this.authorsService.update(id, authorDto);
   }
 
   @Delete(':id')
+  @Roles(Role.Admin)
   delete(@Param('id') id: Author['id']) {
     return this.authorsService.delete(id);
   }
