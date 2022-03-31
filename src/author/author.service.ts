@@ -39,4 +39,13 @@ export class AuthorsService {
 
     return await this.authorsRepository.save(author);
   }
+
+  async update(id: Author['id'], authorDto: any) {
+    const author = await this.findById(id);
+
+    return await this.authorsRepository.save({
+      ...author,
+      ...authorDto,
+    });
+  }
 }
