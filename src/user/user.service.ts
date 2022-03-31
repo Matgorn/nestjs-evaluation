@@ -62,11 +62,14 @@ export class UserService {
 
   async update(id: number, userDto: any) {
     const user = await this.findById(id);
-    const foundRoles = await Promise.all(
-      userDto?.roles.map(
-        async (roleName) => await this.rolesService.findByName(roleName),
-      ),
-    );
+    const foundRoles =
+      (userDto?.roles &&
+        (await Promise.all(
+          userDto?.roles.map(
+            async (roleName) => await this.rolesService.findByName(roleName),
+          ),
+        ))) ||
+      [];
 
     return await this.usersRepository.save({
       ...user,
