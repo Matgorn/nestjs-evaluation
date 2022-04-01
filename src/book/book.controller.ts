@@ -19,16 +19,10 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('books')
 export class BooksController {
   constructor(private booksService: BooksService) {}
-
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get()
-  @Roles(Role.Admin)
-  find() {
-    return this.booksService.list();
-  }
 
   @Get(':id')
   findOne(@Param('id') id: number) {
@@ -53,6 +47,7 @@ export class BooksController {
       transform: true,
     }),
   )
+  @Roles(Role.Admin)
   updateBook(
     @Body() updateBookDto: UpdateBookDto,
     @Param('id') id: Book['id'],
@@ -61,6 +56,7 @@ export class BooksController {
   }
 
   @Delete(':id')
+  @Roles(Role.Admin)
   deleteBook(@Param('id') id: Book['id']) {
     return this.booksService.delete(id);
   }
