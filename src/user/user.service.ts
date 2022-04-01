@@ -50,6 +50,9 @@ export class UserService {
       where: { id },
       relations: {
         roles: true,
+        books: {
+          book: true,
+        },
       },
     });
 

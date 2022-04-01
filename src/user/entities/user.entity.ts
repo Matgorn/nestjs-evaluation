@@ -4,11 +4,13 @@ import {
   Index,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { RoleEntity } from 'src/role/entities/role.entity';
+import { Supply } from 'src/supply/entities/supply.entity';
 
 @Entity('users')
 export class User {
@@ -36,6 +38,9 @@ export class User {
   @ManyToMany(() => RoleEntity, (role) => role.users)
   @JoinTable()
   roles: RoleEntity[];
+
+  @OneToMany(() => Supply, (supply) => supply.owner)
+  books: Supply[];
 
   set password(password: string) {
     this.salt = bcrypt.genSaltSync(10);

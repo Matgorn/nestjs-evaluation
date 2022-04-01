@@ -1,6 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BooksService } from 'src/book/book.service';
+import { User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { SupplyDTO } from './dto/supply.dto';
 import { Supply } from './entities/supply.entity';
@@ -12,6 +19,7 @@ export class SuppliesService {
     @InjectRepository(Supply)
     private readonly supplyRepository: Repository<Supply>,
     private readonly booksService: BooksService,
+    private readonly userService: UserService,
   ) {}
 
   async list() {
@@ -21,7 +29,10 @@ export class SuppliesService {
   }
 
   async findById(id: Supply['id']) {
-    const supply = await this.supplyRepository.findOneBy({ id });
+    const supply = await this.supplyRepository.findOne({
+      where: { id },
+      relations: { owner: true },
+    });
 
     if (!supply) {
       throw new NotFoundException('Supply not found');
@@ -48,15 +59,44 @@ export class SuppliesService {
     return supply;
   }
 
-  async updateStatus(id: Supply['id'], status: SupplyStatus) {
+  async borrow(id: Supply['id'], userId: User['id']) {
     const supply = await this.findById(id);
+    const owner = await this.userService.findById(userId);
 
-    const { id: supplyId, ...supplyData } = supply;
+    if (supply.status === SupplyStatus.BORROWED) {
+      throw new ConflictException();
+    }
 
     return this.supplyRepository.save({
-      ...supplyData,
-      status,
-      id,
+      ...supply,
+      status: SupplyStatus.BORROWED,
+      owner,
+    });
+  }
+
+  async return(id: Supply['id'], userId: User['id']) {
+    const supply = await this.findById(id);
+    const user = await this.userService.findById(userId);
+    const userBookIds = user?.books?.map((book) => book.id);
+
+    if (!userBookIds.includes(supply.id)) {
+      throw new UnauthorizedException();
+    }
+
+    return await this.supplyRepository.save({
+      ...supply,
+      status: SupplyStatus.AVAILABLE,
+      owner: null,
+    });
+  }
+
+  async lost(id: Supply['id']) {
+    const supply = await this.findById(id);
+
+    return this.supplyRepository.save({
+      ...supply,
+      status: SupplyStatus.LOST,
+      owner: null,
     });
   }
 }

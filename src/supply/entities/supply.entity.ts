@@ -11,6 +11,7 @@ import {
 
 import { Book } from 'src/book/entities/book.entity';
 import { SupplyStatus } from '../supply.types';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity()
 export class Supply {
@@ -28,6 +29,9 @@ export class Supply {
   })
   @Index()
   status: SupplyStatus;
+
+  @ManyToOne(() => User, (user) => user.books)
+  owner?: User;
 
   @CreateDateColumn()
   createdAt: Date;

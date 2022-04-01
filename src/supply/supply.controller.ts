@@ -6,13 +6,17 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Book } from 'src/book/entities/book.entity';
 import { SupplyDTO } from './dto/supply.dto';
 import { Supply } from './entities/supply.entity';
 import { SuppliesService } from './supply.service';
-import { SupplyStatus } from './supply.types';
 
 @Controller('supplies')
+@UseGuards(JwtAuthGuard)
 export class SuppliesController {
   constructor(private readonly suppliesService: SuppliesService) {}
 
@@ -32,17 +36,23 @@ export class SuppliesController {
   }
 
   @Post(':id/borrow')
-  async borrowSupply(@Param('id', new ParseIntPipe()) id: Supply['id']) {
-    return this.suppliesService.updateStatus(id, SupplyStatus['BORROWED']);
+  async borrowSupply(
+    @Param('id', new ParseIntPipe()) id: Supply['id'],
+    @Request() req,
+  ) {
+    return this.suppliesService.borrow(id, req?.user?.userId);
   }
 
   @Post(':id/return')
-  async returnSupply(@Param('id', new ParseIntPipe()) id: number) {
-    return this.suppliesService.updateStatus(id, SupplyStatus['AVAILABLE']);
+  async returnSupply(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Request() req,
+  ) {
+    return this.suppliesService.return(id, req?.user?.userId);
   }
 
   @Post(':id/lost')
   async lostSupply(@Param('id', new ParseIntPipe()) id: number) {
-    return this.suppliesService.updateStatus(id, SupplyStatus['LOST']);
+    return this.suppliesService.lost(id);
   }
 }
