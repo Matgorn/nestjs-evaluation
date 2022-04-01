@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -15,6 +16,8 @@ import { Roles } from 'src/role/role.decorator';
 import { Role } from 'src/role/role.types';
 import { BooksService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
+import { Book } from './entities/book.entity';
 
 @Controller('books')
 export class BooksController {
@@ -50,7 +53,15 @@ export class BooksController {
       transform: true,
     }),
   )
-  updateBook(@Body() updateBookDto: any, @Param('id') id: number) {
+  updateBook(
+    @Body() updateBookDto: UpdateBookDto,
+    @Param('id') id: Book['id'],
+  ) {
     return this.booksService.update(id, updateBookDto);
+  }
+
+  @Delete(':id')
+  deleteBook(@Param('id') id: Book['id']) {
+    return this.booksService.delete(id);
   }
 }

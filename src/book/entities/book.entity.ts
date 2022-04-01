@@ -16,7 +16,7 @@ export class Book {
   id: number;
 
   @Column({ type: 'varchar', width: 13 })
-  @Index()
+  @Index({ unique: true })
   isbn: string;
 
   @Column()

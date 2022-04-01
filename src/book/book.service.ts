@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorsService } from 'src/author/author.service';
 import { Repository } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 
 import { Book } from './entities/book.entity';
 
@@ -58,19 +59,27 @@ export class BooksService {
     });
   }
 
-  async update(id: number, book: CreateBookDto) {
+  async update(id: Book['id'], book: UpdateBookDto) {
     const foundBook = await this.findById(id);
+    const { authorIds, ...bookUpdate } = book;
 
-    const { id: bookId, ...bookData } = foundBook;
+    const foundAuthors =
+      (authorIds &&
+        (await Promise.all(
+          authorIds.map(
+            async (authorId) => await this.authorsService.findById(authorId),
+          ),
+        ))) ||
+      [];
 
     return this.bookRepository.save({
-      ...bookData,
-      ...book,
-      id,
+      ...foundBook,
+      ...bookUpdate,
+      ...(book?.authorIds && { authors: foundAuthors }),
     });
   }
 
-  async delete(id: number) {
+  async delete(id: Book['id']) {
     const book = await this.findById(id);
 
     await this.bookRepository.delete(id);
