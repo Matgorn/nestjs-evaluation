@@ -76,10 +76,8 @@ export class SuppliesService {
 
   async return(id: Supply['id'], userId: User['id']) {
     const supply = await this.findById(id);
-    const user = await this.userService.findById(userId);
-    const userBookIds = user?.books?.map((book) => book.id);
 
-    if (!userBookIds.includes(supply.id)) {
+    if (supply.owner?.id !== userId) {
       throw new UnauthorizedException();
     }
 
