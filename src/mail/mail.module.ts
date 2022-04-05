@@ -1,12 +1,12 @@
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { BullModule } from '@nestjs/bull';
-import { Module } from '@nestjs/common';
-import { join } from 'path';
+import { forwardRef, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from 'src/user/user.module';
 import { MailConsumer } from './mail.consumer';
 import { MailService } from './mail.service';
-
-console.log(join(__dirname, 'templates'));
+import { MailController } from './mail.controller';
 
 @Module({
   imports: [
@@ -44,8 +44,14 @@ console.log(join(__dirname, 'templates'));
     BullModule.registerQueue({
       name: 'mail-job',
     }),
+    JwtModule.register({
+      secret: 'secretmail',
+      signOptions: { expiresIn: '100000' },
+    }),
+    forwardRef(() => UserModule),
   ],
   providers: [MailService, MailConsumer],
   exports: [MailService],
+  controllers: [MailController],
 })
 export class MailModule {}

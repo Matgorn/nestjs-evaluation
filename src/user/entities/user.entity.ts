@@ -29,6 +29,9 @@ export class User {
   @Column()
   email: string;
 
+  @Column({ default: false })
+  isEmailConfirmed: boolean;
+
   @Column()
   salt: string;
 

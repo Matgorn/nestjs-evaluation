@@ -1,5 +1,11 @@
 <p>Hey {{name}},</p>
 
-<p>Welcome to the library app</p>
+<p>Welcome to the library app. To confirm the email address, click here:</p>
+<form method="post" action="http://localhost:3000/email/confirm?token={{token}}" class="inline" style="display:inline">
+  <input type="hidden" name="extra_submit_param" value="extra_submit_value">
+  <button style="background:none;border:none;color:blue;text-decoration:underline;cursor:pointer;font-size:1em;font-family:serif" type="submit" name="submit_param" value="submit_value" class="link-button">
+    Confirm email adress
+  </button>
+</form>
 
 <p>If you did not request this email you can safely ignore it.</p>

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'src/mail/mail.service';
 import { RolesService } from 'src/role/role.service';
@@ -14,6 +19,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly rolesService: RolesService,
+    @Inject(forwardRef(() => MailService))
     private readonly mailService: MailService,
   ) {}
 
@@ -83,6 +89,15 @@ export class UserService {
       ...user,
       ...userDto,
       roles: foundRoles,
+    });
+  }
+
+  async confirmEmailAdress(email: User['email']) {
+    const user = await this.findByEmail(email);
+
+    await this.usersRepository.save({
+      ...user,
+      isEmailConfirmed: true,
     });
   }
 }
