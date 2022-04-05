@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MailService } from 'src/mail/mail.service';
 import { RolesService } from 'src/role/role.service';
 import { Role } from 'src/role/role.types';
 import { Repository } from 'typeorm';
@@ -13,6 +14,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly rolesService: RolesService,
+    private readonly mailService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -29,7 +31,10 @@ export class UserService {
     });
     user.password = password;
 
-    return this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+    await this.mailService.sendUserConfirmation(user);
+
+    return user;
   }
 
   async findByEmail(email: User['email']) {

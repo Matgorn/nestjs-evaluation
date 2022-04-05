@@ -8,6 +8,7 @@ import { BooksModule } from './book/book.module';
 import { AuthorsModule } from './author/author.module';
 import { SuppliesModule } from './supply/supply.module';
 import { RolesModule } from './role/role.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RolesModule } from './role/role.module';
     AuthorsModule,
     SuppliesModule,
     RolesModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
