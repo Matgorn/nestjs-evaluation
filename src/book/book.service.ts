@@ -1,11 +1,14 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorsService } from 'src/author/author.service';
-import { Repository } from 'typeorm';
+import { DbFileService } from 'src/db-file/db-file.service';
+import DatabaseFile from 'src/db-file/entities/db-file.entity';
+import { Connection, Repository } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
@@ -17,6 +20,8 @@ export class BooksService {
     @InjectRepository(Book)
     private readonly bookRepository: Repository<Book>,
     private readonly authorsService: AuthorsService,
+    private readonly dbFileService: DbFileService,
+    private connection: Connection,
   ) {}
 
   async list() {
@@ -85,5 +90,51 @@ export class BooksService {
     await this.bookRepository.delete(id);
 
     return book;
+  }
+
+  async addCoverImage(
+    bookId: Book['id'],
+    imageBuffer: Buffer,
+    filename: DatabaseFile['filename'],
+  ) {
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const book = await queryRunner.manager.findOne(Book, {
+        where: { id: bookId },
+      });
+      const currentCoverId = book.coverImageId;
+      const coverImage =
+        await this.dbFileService.uploadDatabaseFileWithQueryRunner(
+          imageBuffer,
+          filename,
+          queryRunner,
+        );
+
+      await queryRunner.manager.save(Book, {
+        ...book,
+        coverImageId: coverImage.id,
+      });
+
+      if (currentCoverId) {
+        await this.dbFileService.deleteFileWithQueryRunner(
+          currentCoverId,
+          queryRunner,
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return coverImage;
+    } catch (err) {
+      console.log(err);
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException();
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

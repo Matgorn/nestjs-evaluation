@@ -6,10 +6,13 @@ import {
   Param,
   Post,
   Put,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/role/role.decorator';
@@ -59,5 +62,16 @@ export class BooksController {
   @Roles(Role.Admin)
   deleteBook(@Param('id') id: Book['id']) {
     return this.booksService.delete(id);
+  }
+
+  @Post('cover/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Roles(Role.Admin)
+  async addCoverImage(
+    @Param('id') id: Book['id'],
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.booksService.addCoverImage(id, file.buffer, file.originalname);
   }
 }

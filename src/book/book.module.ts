@@ -10,12 +10,14 @@ import { BooksController } from './book.controller';
 import { Author } from 'src/author/entities/author.entity';
 import { Book } from './entities/book.entity';
 import { Supply } from 'src/supply/entities/supply.entity';
+import { DbFileModule } from 'src/db-file/db-file.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Book, Author, Supply]),
     AuthModule,
     AuthorsModule,
+    DbFileModule,
   ],
   controllers: [BooksController],
   providers: [BooksService],

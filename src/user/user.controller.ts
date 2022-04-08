@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -21,5 +21,10 @@ export class UserController {
   @Put(':id')
   updateUser(@Param('id') id: User['id'], @Body() userDto: UpdateUserDto) {
     return this.usersService.update(id, userDto);
+  }
+
+  @Put('roles/:id')
+  updateUserRoles(@Param('id') id: User['id'], @Query('roles') roles: string) {
+    return this.usersService.updateRoles(id, roles.split(','));
   }
 }

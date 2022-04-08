@@ -2,13 +2,15 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'src/mail/mail.service';
+import { RoleEntity } from 'src/role/entities/role.entity';
 import { RolesService } from 'src/role/role.service';
 import { Role } from 'src/role/role.types';
-import { Repository } from 'typeorm';
+import { Connection, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -21,6 +23,7 @@ export class UserService {
     private readonly rolesService: RolesService,
     @Inject(forwardRef(() => MailService))
     private readonly mailService: MailService,
+    private readonly connection: Connection,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -74,22 +77,39 @@ export class UserService {
     return user;
   }
 
-  async update(id: number, userDto: any) {
+  async update(id: User['id'], userDto: UpdateUserDto) {
     const user = await this.findById(id);
-    const foundRoles =
-      (userDto?.roles &&
-        (await Promise.all(
-          userDto?.roles.map(
-            async (roleName) => await this.rolesService.findByName(roleName),
-          ),
-        ))) ||
-      [];
 
     return await this.usersRepository.save({
       ...user,
       ...userDto,
-      roles: foundRoles,
     });
+  }
+
+  async updateRoles(id: User['id'], roles: string[]) {
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = await queryRunner.manager.findOne(User, { where: { id } });
+      const foundRoles = await queryRunner.manager.find(RoleEntity, {
+        where: { name: In(roles) },
+      });
+
+      const updatedUser = {
+        ...user,
+        roles: foundRoles,
+      };
+
+      return await queryRunner.manager.save(User, updatedUser);
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async confirmEmailAdress(email: User['email']) {

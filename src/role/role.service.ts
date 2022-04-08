@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { RoleDto } from './dto/role.dto';
 import { RoleEntity } from './entities/role.entity';
@@ -30,6 +30,12 @@ export class RolesService {
     }
 
     return role;
+  }
+
+  async findManyByNames(names: RoleEntity['name'][]) {
+    return await this.rolesRepository.find({
+      where: { name: In(names) },
+    });
   }
 
   async findById(id: RoleEntity['id']) {
