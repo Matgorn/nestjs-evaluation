@@ -8,7 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'src/mail/mail.service';
 import { RoleEntity } from 'src/role/entities/role.entity';
-import { RolesService } from 'src/role/role.service';
 import { Role } from 'src/role/role.types';
 import { Connection, In, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +19,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-    private readonly rolesService: RolesService,
     @Inject(forwardRef(() => MailService))
     private readonly mailService: MailService,
     private readonly connection: Connection,
@@ -28,22 +26,40 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const { password, ...userData } = createUserDto;
-    let userRole = await this.rolesService.findByName(Role.User);
+    const queryRunner = this.connection.createQueryRunner();
 
-    if (!userRole) {
-      userRole = await this.rolesService.create({ name: Role.User });
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      let userRole = await queryRunner.manager.findOne(RoleEntity, {
+        where: { name: Role.User },
+      });
+
+      if (!userRole) {
+        userRole = await queryRunner.manager.create(RoleEntity, {
+          name: Role.User,
+        });
+        await queryRunner.manager.save(RoleEntity, userRole);
+      }
+
+      const user = await queryRunner.manager.create(User, {
+        ...userData,
+        roles: [userRole],
+      });
+      user.password = password;
+
+      await queryRunner.manager.save(user);
+      await this.mailService.sendUserConfirmation(user);
+      await queryRunner.commitTransaction();
+
+      return user;
+    } catch {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException();
+    } finally {
+      queryRunner.release();
     }
-
-    const user = await this.usersRepository.create({
-      ...userData,
-      roles: [userRole],
-    });
-    user.password = password;
-
-    await this.usersRepository.save(user);
-    await this.mailService.sendUserConfirmation(user);
-
-    return user;
   }
 
   async findByEmail(email: User['email']) {
@@ -103,7 +119,10 @@ export class UserService {
         roles: foundRoles,
       };
 
-      return await queryRunner.manager.save(User, updatedUser);
+      await queryRunner.manager.save(User, updatedUser);
+      await queryRunner.commitTransaction();
+
+      return user;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException();
