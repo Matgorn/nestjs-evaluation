@@ -22,14 +22,13 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('books')
 export class BooksController {
   constructor(private booksService: BooksService) {}
 
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.booksService.findById(id);
+    return this.booksService.getBookInfoById(id);
   }
 
   @Post()

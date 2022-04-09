@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorsService } from 'src/author/author.service';
 import { DbFileService } from 'src/db-file/db-file.service';
 import DatabaseFile from 'src/db-file/entities/db-file.entity';
+import { SupplyStatus } from 'src/supply/supply.types';
 import { Connection, Repository } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
@@ -35,7 +36,9 @@ export class BooksService {
 
   async findById(id: Book['id']) {
     const foundBook = await this.bookRepository.findOne({
-      where: { id },
+      where: {
+        id,
+      },
       relations: { authors: true, supplies: true },
     });
 
@@ -44,6 +47,27 @@ export class BooksService {
     }
 
     return foundBook;
+  }
+
+  async getBookInfoById(id: Book['id']) {
+    const foundBook = await this.bookRepository.findOne({
+      where: {
+        id,
+        supplies: {
+          status: SupplyStatus.AVAILABLE,
+        },
+      },
+      relations: { authors: true, supplies: true },
+    });
+
+    if (!foundBook) {
+      throw new NotFoundException('Book not found');
+    }
+
+    return {
+      ...foundBook,
+      supplyCount: foundBook.supplies.length,
+    };
   }
 
   async create(book: CreateBookDto) {

@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
 import { MailService } from 'src/mail/mail.service';
 import { RoleEntity } from 'src/role/entities/role.entity';
 import { Role } from 'src/role/role.types';
@@ -21,6 +21,7 @@ export class UserService {
     private readonly usersRepository: Repository<User>,
     @Inject(forwardRef(() => MailService))
     private readonly mailService: MailService,
+    @InjectConnection()
     private readonly connection: Connection,
   ) {}
 

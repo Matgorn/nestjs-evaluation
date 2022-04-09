@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Book } from 'src/book/entities/book.entity';
 import { SupplyDTO } from './dto/supply.dto';
 import { Supply } from './entities/supply.entity';
 import { SuppliesService } from './supply.service';

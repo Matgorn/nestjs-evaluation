@@ -18,6 +18,7 @@ export class RoleEntity {
     type: 'enum',
     enum: Role,
     default: Role['User'],
+    unique: true,
   })
   @Index()
   name: Role;
