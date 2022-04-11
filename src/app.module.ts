@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { BooksModule } from './book/book.module';
@@ -8,21 +7,15 @@ import { SuppliesModule } from './supply/supply.module';
 import { RolesModule } from './role/role.module';
 import { MailModule } from './mail/mail.module';
 import { DbFileModule } from './db-file/db-file.module';
+import { DatabaseModule } from './database/database.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ envFilePath: ['.env.test', '.env'] }),
     AuthModule,
     UserModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres', // type of our database
-      host: 'localhost', // database host
-      port: 5432, // database host
-      username: 'postgres', // username
-      password: 'pass123', // user password
-      database: 'postgres', // name of our database,
-      autoLoadEntities: true, // models will be loaded automatically
-      synchronize: true, // your entities will be synced with the database(recommended: disable in prod)
-    }),
+    DatabaseModule,
     BooksModule,
     AuthorsModule,
     SuppliesModule,
