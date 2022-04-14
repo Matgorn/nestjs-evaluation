@@ -12,7 +12,7 @@ export async function loadOrmConfig(
     username: databaseConfig.username,
     password: databaseConfig.password,
     database: databaseConfig.database,
-    entities: ['dist/src/**/entities/*.entity.ts'],
+    entities: [__dirname + '/../**/*.entity.{js,ts}'],
     migrations: ['dist/src/database/migrations/*js'],
     synchronize: false,
     retryAttempts: 1,

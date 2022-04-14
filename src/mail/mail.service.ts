@@ -25,6 +25,6 @@ export class MailService {
 
     await this.userService.confirmEmailAdress(email);
 
-    return email + 'confirmed';
+    return email + ' confirmed';
   }
 }
