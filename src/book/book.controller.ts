@@ -1,11 +1,13 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
   Param,
   Post,
   Put,
+  SerializeOptions,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -20,15 +22,31 @@ import { Role } from 'src/role/role.types';
 import { BooksService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { Book } from './entities/book.entity';
+import { Book, GROUP_ALL_BOOKS, GROUP_BOOK } from './entities/book.entity';
 
 @Controller('books')
+@UseInterceptors(ClassSerializerInterceptor)
 export class BooksController {
   constructor(private booksService: BooksService) {}
+  @Get()
+  @SerializeOptions({
+    groups: [GROUP_ALL_BOOKS],
+  })
+  findAll() {
+    return this.booksService.list();
+  }
 
+  @Get('info/:id')
+  getBookInfoById(@Param('id') id: number) {
+    return this.booksService.getBookInfoById(id);
+  }
+
+  @SerializeOptions({
+    groups: [GROUP_BOOK],
+  })
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.booksService.getBookInfoById(id);
+    return this.booksService.findById(id);
   }
 
   @Post()

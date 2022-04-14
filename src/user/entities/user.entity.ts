@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 
 import { RoleEntity } from 'src/role/entities/role.entity';
 import { Supply } from 'src/supply/entities/supply.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -32,9 +33,11 @@ export class User {
   @Column({ default: false })
   isEmailConfirmed: boolean;
 
+  @Exclude()
   @Column()
   salt: string;
 
+  @Exclude()
   @Column()
   hash: string;
 
