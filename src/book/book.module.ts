@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Injectable, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from 'src/auth/auth.module';
@@ -12,6 +12,13 @@ import { Book } from './entities/book.entity';
 import { Supply } from 'src/supply/entities/supply.entity';
 import { DbFileModule } from 'src/db-file/db-file.module';
 
+@Injectable()
+export class TestFactory {
+  create() {
+    return 'Some test string';
+  }
+}
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([Book, Author, Supply]),
@@ -20,7 +27,15 @@ import { DbFileModule } from 'src/db-file/db-file.module';
     DbFileModule,
   ],
   controllers: [BooksController],
-  providers: [BooksService],
+  providers: [
+    BooksService,
+    TestFactory,
+    {
+      provide: 'TEST',
+      useFactory: (testFactory: TestFactory) => testFactory.create(),
+      inject: [TestFactory],
+    },
+  ],
   exports: [BooksService],
 })
 export class BooksModule {}

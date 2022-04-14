@@ -16,6 +16,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(8000);
+  const port = app.get('PORT');
+  await app.listen(port);
 }
 bootstrap();

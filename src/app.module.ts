@@ -11,6 +11,12 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
+  providers: [
+    {
+      provide: 'PORT',
+      useValue: 8000,
+    },
+  ],
   imports: [
     ConfigModule.forRoot({ envFilePath: ['.env.test', '.env'] }),
     AuthModule,

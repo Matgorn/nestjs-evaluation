@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -23,8 +24,10 @@ export class BooksService {
     private readonly authorsService: AuthorsService,
     private readonly dbFileService: DbFileService,
     private connection: Connection,
-  ) {}
-
+    @Inject('TEST') private testProvider: () => void,
+  ) {
+    console.log(testProvider);
+  }
   async list() {
     return this.bookRepository.find({
       order: {
