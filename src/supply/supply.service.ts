@@ -45,7 +45,7 @@ export class SuppliesService {
     const book = await this.booksService.findById(supply.bookId);
 
     const newSupply = await this.supplyRepository.create({
-      book,
+      bookId: book.id,
     });
 
     return await this.supplyRepository.save(newSupply);

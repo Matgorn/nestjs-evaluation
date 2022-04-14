@@ -1,4 +1,10 @@
-import { IsDateString, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsDateString,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 
 export class NotificationDto {
   @IsEmail()
@@ -9,15 +15,11 @@ export class NotificationDto {
 
   @IsString()
   @IsNotEmpty()
-  subject: string;
-
-  @IsString()
-  @IsNotEmpty()
   bookName: string;
 
   @IsDateString()
   returnDate: string;
 
-  @IsDateString()
-  date: string;
+  @IsDate()
+  date: Date;
 }

@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   SerializeOptions,
   UploadedFile,
   UseGuards,
@@ -80,6 +81,11 @@ export class BooksController {
   @Roles(Role.Admin)
   deleteBook(@Param('id') id: Book['id']) {
     return this.booksService.delete(id);
+  }
+
+  @Put('borrow/:id')
+  borrowBook(@Param('id') id: Book['id'], @Req() req) {
+    return this.booksService.borrowBook(id, req.user);
   }
 
   @Post('cover/:id')

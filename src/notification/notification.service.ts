@@ -12,12 +12,11 @@ export class NotificationService {
   ) {}
 
   sendNotification(emailSchedule: NotificationDto) {
-    const date = new Date(emailSchedule.date);
-    const job = new CronJob(date, async () => {
+    const job = new CronJob(emailSchedule.date, async () => {
       await this.mailerService
         .sendMail({
           to: emailSchedule.recipentEmail,
-          subject: emailSchedule.subject,
+          subject: 'Notification about returning borrowed book',
           template: 'notification',
           context: {
             name: emailSchedule.recipentName,
@@ -31,7 +30,7 @@ export class NotificationService {
     });
 
     this.schedulerRegistry.addCronJob(
-      `${Date.now()}-${emailSchedule.subject}`,
+      `${Date.now()}-${emailSchedule.recipentName}`,
       job,
     );
     job.start();

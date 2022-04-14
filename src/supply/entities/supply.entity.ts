@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
-  JoinTable,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -18,9 +18,12 @@ export class Supply {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @JoinColumn({ name: 'bookId' })
   @ManyToOne(() => Book, (book) => book.supplies)
-  @JoinTable()
   book: Book;
+
+  @Column({ nullable: false })
+  bookId: Book['id'];
 
   @Column({
     type: 'enum',

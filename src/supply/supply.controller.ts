@@ -10,12 +10,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/role/role.decorator';
+import { Role } from 'src/role/role.types';
 import { SupplyDTO } from './dto/supply.dto';
 import { Supply } from './entities/supply.entity';
 import { SuppliesService } from './supply.service';
 
 @Controller('supplies')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(Role.Admin)
 export class SuppliesController {
   constructor(private readonly suppliesService: SuppliesService) {}
 
@@ -32,14 +36,6 @@ export class SuppliesController {
   @Delete(':id')
   async deleteSupply(@Param('id', new ParseIntPipe()) id: Supply['id']) {
     return this.suppliesService.delete(id);
-  }
-
-  @Post(':id/borrow')
-  async borrowSupply(
-    @Param('id', new ParseIntPipe()) id: Supply['id'],
-    @Request() req,
-  ) {
-    return this.suppliesService.borrow(id, req?.user?.userId);
   }
 
   @Post(':id/return')
