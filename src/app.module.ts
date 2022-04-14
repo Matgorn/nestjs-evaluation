@@ -11,12 +11,14 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { NotificationModule } from './notification/notification.module';
 import * as Joi from '@hapi/joi';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   providers: [
     {
       provide: 'PORT',
-      useValue: 8000,
+      useValue: process.env.APP_PORT || 8000,
     },
   ],
   imports: [
@@ -41,6 +43,31 @@ import * as Joi from '@hapi/joi';
     MailModule,
     DbFileModule,
     NotificationModule,
+    MailerModule.forRootAsync({
+      useFactory: async () => ({
+        transport: {
+          service: process.env.EMAIL_SERVICE,
+          secure: false,
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD,
+          },
+          tls: {
+            rejectUnauthorized: false,
+          },
+        },
+        defaults: {
+          from: `"Reply From:" <Library App>`,
+        },
+        template: {
+          dir: __dirname + '/templates',
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
   ],
 })
 export class AppModule {}

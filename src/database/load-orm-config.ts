@@ -14,7 +14,7 @@ export async function loadOrmConfig(
     database: databaseConfig.database,
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
     migrations: ['dist/src/database/migrations/*js'],
-    synchronize: false,
+    synchronize: true,
     retryAttempts: 1,
     retryDelay: 3000,
   };

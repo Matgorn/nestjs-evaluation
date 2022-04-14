@@ -25,9 +25,7 @@ export class BooksService {
     private readonly dbFileService: DbFileService,
     private connection: Connection,
     @Inject('TEST') private testProvider: () => void,
-  ) {
-    console.log(testProvider);
-  }
+  ) {}
   async list() {
     return this.bookRepository.find({
       order: {

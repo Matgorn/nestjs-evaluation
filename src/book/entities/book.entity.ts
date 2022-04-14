@@ -17,7 +17,7 @@ import {
 export const GROUP_BOOK = 'group_book_details';
 export const GROUP_ALL_BOOKS = 'group_all_books';
 
-@Entity()
+@Entity('books')
 export class Book {
   @PrimaryGeneratedColumn()
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS] })

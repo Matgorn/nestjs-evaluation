@@ -1,5 +1,3 @@
-import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { BullModule } from '@nestjs/bull';
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -10,31 +8,6 @@ import { MailController } from './mail.controller';
 
 @Module({
   imports: [
-    MailerModule.forRootAsync({
-      useFactory: async () => ({
-        transport: {
-          service: 'gmail',
-          secure: false,
-          auth: {
-            user: 'testsendgrid96@gmail.com',
-            pass: 'polkilop1',
-          },
-          tls: {
-            rejectUnauthorized: false,
-          },
-        },
-        defaults: {
-          from: `"Reply From:" <testsendgrid96@gmail.com>`,
-        },
-        template: {
-          dir: __dirname + '/templates',
-          adapter: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-      }),
-    }),
     BullModule.forRoot({
       redis: {
         host: 'localhost',
