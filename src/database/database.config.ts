@@ -1,13 +1,13 @@
 import { registerAs } from '@nestjs/config';
 
 export const DatabaseConfig = registerAs('database', () => ({
-  host: process.env.TYPEORM_HOST,
+  host: process.env.POSTGRES_HOST,
 
-  database: process.env.TYPEORM_DATABASE,
+  database: process.env.POSTGRES_DATABASE,
 
-  username: process.env.TYPEORM_USERNAME,
+  username: process.env.POSTGRES_USERNAME,
 
-  password: process.env.TYPEORM_PASSWORD,
+  password: process.env.POSTGRES_PASSWORD,
 
-  port: parseInt(process.env.TYPEORM_PORT, 10) || 5432,
+  port: parseInt(process.env.POSTGRES_PORT, 10) || 5432,
 }));
