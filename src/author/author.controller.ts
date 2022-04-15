@@ -17,7 +17,7 @@ import { AuthorDTO } from './dto/author.dto';
 import { Author } from './entities/author.entity';
 
 @Controller('authors')
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AuthorsController {
   constructor(private authorsService: AuthorsService) {}
 
