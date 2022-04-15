@@ -7,9 +7,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Supply } from './entities/supply.entity';
 import { Book } from 'src/book/entities/book.entity';
 import { UserModule } from 'src/user/user.module';
+import { ConfigModule } from '@nestjs/config';
+import { supplyConfig } from './supply.config';
 
 @Module({
-  imports: [BooksModule, UserModule, TypeOrmModule.forFeature([Supply, Book])],
+  imports: [
+    BooksModule,
+    UserModule,
+    TypeOrmModule.forFeature([Supply, Book]),
+    ConfigModule.forFeature(supplyConfig),
+  ],
   providers: [SuppliesService],
   controllers: [SuppliesController],
   exports: [SuppliesService],

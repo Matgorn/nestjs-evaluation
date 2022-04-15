@@ -4,6 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BooksService } from 'src/book/book.service';
 import { User } from 'src/user/entities/user.entity';
@@ -20,7 +21,11 @@ export class SuppliesService {
     private readonly supplyRepository: Repository<Supply>,
     private readonly booksService: BooksService,
     private readonly userService: UserService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    console.log(this.configService.get<string>('supply.someValue'));
+    console.log(this.configService.get<string>('POSTGRES_USERNAME'));
+  }
 
   async list() {
     return await this.supplyRepository.find({
