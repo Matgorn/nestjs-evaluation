@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 import { Role } from '../role.types';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Entity('roles')
 export class RoleEntity {

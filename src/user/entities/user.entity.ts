@@ -9,8 +9,8 @@ import {
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
-import { RoleEntity } from 'src/role/entities/role.entity';
-import { Supply } from 'src/supply/entities/supply.entity';
+import { RoleEntity } from '../../role/entities/role.entity';
+import { Supply } from '../../supply/entities/supply.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity('users')

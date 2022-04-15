@@ -1,7 +1,7 @@
-import { Exclude, Expose } from 'class-transformer';
-import { Author } from 'src/author/entities/author.entity';
-import DatabaseFile from 'src/db-file/entities/db-file.entity';
-import { Supply } from 'src/supply/entities/supply.entity';
+import { Expose } from 'class-transformer';
+import { Author } from '../../author/entities/author.entity';
+import DatabaseFile from '../../db-file/entities/db-file.entity';
+import { Supply } from '../../supply/entities/supply.entity';
 import {
   Column,
   Entity,
