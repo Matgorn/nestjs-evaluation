@@ -13,12 +13,18 @@ import { NotificationModule } from './notification/notification.module';
 import * as Joi from '@hapi/joi';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 
 @Module({
   providers: [
     {
       provide: 'PORT',
       useValue: process.env.APP_PORT || 8000,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
   imports: [
