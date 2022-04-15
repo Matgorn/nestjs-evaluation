@@ -22,10 +22,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
       provide: 'PORT',
       useValue: process.env.APP_PORT || 8000,
     },
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
   ],
   imports: [
     ConfigModule.forRoot({
@@ -45,7 +45,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     BooksModule,
     AuthorsModule,
     SuppliesModule,
-    RolesModule,
+    RolesModule.register({ someValue: 'Some value' }),
     MailModule,
     DbFileModule,
     NotificationModule,

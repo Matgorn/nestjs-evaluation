@@ -1,13 +1,28 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { RolesService } from './role.service';
 import { RolesController } from './role.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoleEntity } from './entities/role.entity';
 
-@Module({
-  imports: [TypeOrmModule.forFeature([RoleEntity])],
-  providers: [RolesService],
-  controllers: [RolesController],
-  exports: [RolesService],
-})
-export class RolesModule {}
+export interface IRoleOptions {
+  someValue: string;
+}
+
+@Module({})
+export class RolesModule {
+  static register(options: IRoleOptions): DynamicModule {
+    return {
+      module: RolesModule,
+      imports: [TypeOrmModule.forFeature([RoleEntity])],
+      providers: [
+        RolesService,
+        {
+          provide: 'ROLE_OPTIONS',
+          useValue: options,
+        },
+      ],
+      controllers: [RolesController],
+      exports: [RolesService],
+    };
+  }
+}
