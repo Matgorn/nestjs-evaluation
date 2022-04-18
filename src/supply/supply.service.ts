@@ -117,7 +117,7 @@ export class SuppliesService {
           bookName: `${supply?.book?.title} ${supply?.book?.subtitle}`,
           returnDate: supply?.returnDate?.toLocaleDateString(),
         })
-        .then((values) => console.log(values));
+        .catch((err) => console.error(err));
     });
   }
 }

@@ -37,7 +37,6 @@ export class MailConsumer {
 
   @Process('notification-queue')
   async readNotificationJob(job: Job) {
-    console.log('process');
     const { emailSchedule } = job.data;
     await this.mailerService
       .sendMail({
