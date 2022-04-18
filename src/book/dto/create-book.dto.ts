@@ -1,4 +1,6 @@
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import sanitize from 'sanitize-html';
 
 export class CreateBookDto {
   @IsNotEmpty()
@@ -12,6 +14,10 @@ export class CreateBookDto {
   @IsNotEmpty()
   @IsString()
   isbn: string;
+
+  @IsString()
+  @Transform(({ value }) => sanitize(value))
+  description: string;
 
   @IsNumber(
     { allowInfinity: false, allowNaN: false, maxDecimalPlaces: 0 },

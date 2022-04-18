@@ -38,6 +38,10 @@ export class Book {
   @Expose({ groups: [GROUP_BOOK, GROUP_ALL_BOOKS] })
   subtitle: string;
 
+  @Column()
+  @Expose({ groups: [GROUP_BOOK] })
+  description: string;
+
   @JoinColumn({ name: 'coverImageId' })
   @OneToOne(() => DatabaseFile, {
     nullable: true,
