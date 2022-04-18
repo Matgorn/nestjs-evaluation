@@ -5,7 +5,7 @@ import {
   Param,
   Post,
   Put,
-  Res,
+  Redirect,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -27,10 +27,8 @@ export class AuthorsController {
   }
 
   @Post('test')
-  testCreate(@Res() res) {
-    return res.redirect('/authors');
-  }
-
+  @Redirect('/authors')
+  //
   @Put(':id')
   @Roles(Role.Admin)
   update(@Param('id') id: Author['id'], @Body() authorDto: any) {
