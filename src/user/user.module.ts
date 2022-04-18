@@ -8,7 +8,6 @@ import { User } from './entities/user.entity';
 import { RolesModule } from 'src/role/role.module';
 import { RoleEntity } from 'src/role/entities/role.entity';
 import { MailModule } from 'src/mail/mail.module';
-import { NotificationModule } from 'src/notification/notification.module';
 import { Role } from 'src/role/role.types';
 
 @Module({
@@ -16,11 +15,11 @@ import { Role } from 'src/role/role.types';
     TypeOrmModule.forFeature([User, RoleEntity]),
     RolesModule,
     forwardRef(() => MailModule),
-    NotificationModule,
   ],
   providers: [
+    UserService,
     {
-      provide: UserService,
+      provide: 'ROLES_INIT',
       useFactory: async (connection: Connection) => {
         let userRole = await connection.manager.findOne(RoleEntity, {
           where: { name: Role.User },

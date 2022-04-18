@@ -9,7 +9,6 @@ import { MailModule } from './mail/mail.module';
 import { DbFileModule } from './db-file/db-file.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
-import { NotificationModule } from './notification/notification.module';
 import * as Joi from '@hapi/joi';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
@@ -48,7 +47,6 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
     RolesModule.register({ someValue: 'Some value' }),
     MailModule,
     DbFileModule,
-    NotificationModule,
     MailerModule.forRootAsync({
       useFactory: async () => ({
         transport: {

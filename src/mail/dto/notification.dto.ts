@@ -1,10 +1,5 @@
-import {
-  IsDate,
-  IsDateString,
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsDateString, IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class NotificationDto {
   @IsEmail()
@@ -18,8 +13,6 @@ export class NotificationDto {
   bookName: string;
 
   @IsDateString()
+  @Transform(({ value }) => value.toDateString())
   returnDate: string;
-
-  @IsDate()
-  date: Date;
 }

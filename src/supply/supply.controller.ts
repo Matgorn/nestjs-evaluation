@@ -18,8 +18,8 @@ import { Supply } from './entities/supply.entity';
 import { SuppliesService } from './supply.service';
 
 @Controller('supplies')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(Role.Admin)
+// @UseGuards(JwtAuthGuard, RolesGuard)
+// @Roles(Role.Admin)
 export class SuppliesController {
   constructor(private readonly suppliesService: SuppliesService) {}
 

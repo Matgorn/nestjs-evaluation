@@ -40,7 +40,7 @@ export class Book {
 
   @Column()
   @Expose({ groups: [GROUP_BOOK] })
-  description: string;
+  description?: string;
 
   @JoinColumn({ name: 'coverImageId' })
   @OneToOne(() => DatabaseFile, {

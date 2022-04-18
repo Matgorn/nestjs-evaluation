@@ -10,7 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorsService } from 'src/author/author.service';
 import { DbFileService } from 'src/db-file/db-file.service';
 import DatabaseFile from 'src/db-file/entities/db-file.entity';
-import { NotificationService } from 'src/notification/notification.service';
 import { Supply } from 'src/supply/entities/supply.entity';
 import { SupplyStatus } from 'src/supply/supply.types';
 import { User } from 'src/user/entities/user.entity';
@@ -19,8 +18,6 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
 import { Book } from './entities/book.entity';
-
-const ONE_WEEK_MILISECONDS = 604800000;
 
 @Injectable()
 export class BooksService {
@@ -31,7 +28,6 @@ export class BooksService {
     private readonly dbFileService: DbFileService,
     private connection: Connection,
     @Inject('TEST') private testProvider: () => void,
-    private readonly notificationService: NotificationService,
   ) {}
   async list() {
     return this.bookRepository.find({
@@ -156,9 +152,13 @@ export class BooksService {
         throw new NotAcceptableException();
       }
 
+      const returnDate = new Date();
+      returnDate.setMonth(returnDate.getMonth() + 1);
+
       const borrowedSupply = await queryRunner.manager.save(Supply, {
         ...availableSupply,
         status: SupplyStatus.BORROWED,
+        returnDate,
       });
 
       await queryRunner.manager.save(User, {
@@ -167,17 +167,6 @@ export class BooksService {
       });
 
       await queryRunner.commitTransaction();
-      await this.notificationService.sendNotification({
-        recipentEmail: foundUser.email,
-        recipentName: foundUser.firstName,
-        bookName: `${borrowedSupply.book.title} ${borrowedSupply.book.subtitle}`,
-        returnDate: new Date(
-          borrowedSupply.updatedAt.getTime() + 4 * ONE_WEEK_MILISECONDS,
-        ).toLocaleDateString(),
-        date: new Date(
-          borrowedSupply.updatedAt.getTime() + ONE_WEEK_MILISECONDS,
-        ),
-      });
 
       return borrowedSupply;
     } catch (err) {

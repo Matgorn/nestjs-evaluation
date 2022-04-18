@@ -36,6 +36,9 @@ export class Supply {
   @ManyToOne(() => User, (user) => user.books)
   owner?: User;
 
+  @Column({ nullable: true })
+  returnDate: Date;
+
   @CreateDateColumn()
   createdAt: Date;
 

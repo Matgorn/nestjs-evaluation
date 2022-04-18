@@ -5,6 +5,7 @@ import { UserModule } from 'src/user/user.module';
 import { MailConsumer } from './mail.consumer';
 import { MailService } from './mail.service';
 import { MailController } from './mail.controller';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MailController } from './mail.controller';
       secret: 'secretmail',
       signOptions: { expiresIn: '100000' },
     }),
+    ScheduleModule.forRoot(),
     forwardRef(() => UserModule),
   ],
   providers: [MailService, MailConsumer],

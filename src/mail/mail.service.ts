@@ -4,6 +4,7 @@ import { Queue } from 'bull';
 import { User } from 'src/user/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
+import { NotificationDto } from '@app/mail/dto/notification.dto';
 
 @Injectable()
 export class MailService {
@@ -15,7 +16,7 @@ export class MailService {
   ) {}
 
   async sendUserConfirmation(user: User) {
-    await this.emailQueue.add('mail-queue', {
+    await this.emailQueue.add('register-queue', {
       user,
     });
   }
@@ -26,5 +27,11 @@ export class MailService {
     await this.userService.confirmEmailAdress(email);
 
     return email + ' confirmed';
+  }
+
+  async sendNotification(emailSchedule: NotificationDto) {
+    await this.emailQueue.add('notification-queue', {
+      emailSchedule,
+    });
   }
 }

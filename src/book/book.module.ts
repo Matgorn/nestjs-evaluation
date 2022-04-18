@@ -11,7 +11,6 @@ import { Author } from 'src/author/entities/author.entity';
 import { Book } from './entities/book.entity';
 import { Supply } from 'src/supply/entities/supply.entity';
 import { DbFileModule } from 'src/db-file/db-file.module';
-import { NotificationModule } from 'src/notification/notification.module';
 
 @Injectable()
 export class TestFactory {
@@ -26,7 +25,6 @@ export class TestFactory {
     AuthModule,
     AuthorsModule,
     DbFileModule,
-    NotificationModule,
   ],
   controllers: [BooksController],
   providers: [

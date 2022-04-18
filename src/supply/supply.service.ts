@@ -1,15 +1,15 @@
+import { MailService } from '@app/mail/mail.service';
 import {
-  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BooksService } from 'src/book/book.service';
 import { User } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { SupplyDTO } from './dto/supply.dto';
 import { Supply } from './entities/supply.entity';
 import { SupplyStatus } from './supply.types';
@@ -20,8 +20,8 @@ export class SuppliesService {
     @InjectRepository(Supply)
     private readonly supplyRepository: Repository<Supply>,
     private readonly booksService: BooksService,
-    private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {
     console.log(this.configService.get<string>('supply.someValue'));
     console.log(this.configService.get<string>('POSTGRES_USERNAME'));
@@ -64,21 +64,6 @@ export class SuppliesService {
     return supply;
   }
 
-  async borrow(id: Supply['id'], userId: User['id']) {
-    const supply = await this.findById(id);
-    const owner = await this.userService.findById(userId);
-
-    if (supply.status === SupplyStatus.BORROWED) {
-      throw new ConflictException();
-    }
-
-    return this.supplyRepository.save({
-      ...supply,
-      status: SupplyStatus.BORROWED,
-      owner,
-    });
-  }
-
   async return(id: Supply['id'], userId: User['id']) {
     const supply = await this.findById(id);
 
@@ -90,6 +75,7 @@ export class SuppliesService {
       ...supply,
       status: SupplyStatus.AVAILABLE,
       owner: null,
+      returnDate: null,
     });
   }
 
@@ -100,6 +86,38 @@ export class SuppliesService {
       ...supply,
       status: SupplyStatus.LOST,
       owner: null,
+      returnDate: null,
+    });
+  }
+
+  @Cron('51 18 * * *')
+  async findSuppliesToNotify() {
+    const today = new Date();
+    const nextWeek = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 7,
+    );
+    const supplies = await this.supplyRepository.find({
+      where: {
+        status: SupplyStatus.BORROWED,
+        returnDate: Raw((alias) => `${alias} < :date`, { date: nextWeek }),
+      },
+      relations: {
+        owner: true,
+        book: true,
+      },
+    });
+
+    supplies.forEach(async (supply: Supply) => {
+      await this.mailService
+        .sendNotification({
+          recipentEmail: supply?.owner?.email,
+          recipentName: `${supply?.owner?.firstName} ${supply?.owner?.lastName}`,
+          bookName: `${supply?.book?.title} ${supply?.book?.subtitle}`,
+          returnDate: supply?.returnDate?.toLocaleDateString(),
+        })
+        .then((values) => console.log(values));
     });
   }
 }
