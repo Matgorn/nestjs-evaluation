@@ -1,10 +1,12 @@
+import { SupplyStatus } from '@app/supply/supply.types';
 import { Book } from '@book/entities/book.entity';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import request from 'supertest';
 import { Repository } from 'typeorm';
 
-import { createAdmin, createAuthor, createBook, createUser } from './factories';
+import { createAuthor, createBook, createSupply } from './factories';
+import { getUserToken } from './helpers';
 import { getApplication } from './helpers/getApplication';
 
 describe('AppController (e2e)', () => {
@@ -12,29 +14,50 @@ describe('AppController (e2e)', () => {
   let bookRepository: Repository<Book>;
   let adminToken: string;
   let userToken: string;
+  let userId: number;
 
   beforeEach(async () => {
     app = await getApplication();
     bookRepository = app.get(getRepositoryToken(Book));
-    const admin = await createAdmin();
-    const user = await createUser();
+    adminToken = (await getUserToken(app, { isAdmin: true }))?.token;
+    const user = await getUserToken(app);
+    userToken = user?.token;
+    userId = user?.userId;
+  });
 
-    const { body: adminResponse } = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: admin.email,
-        password: 'password',
-      });
+  it('/books/borrow/:id (PUT)', async () => {
+    const { id: bookId } = await createBook({
+      isbn: '111111111111',
+    });
+    await Promise.all([
+      createSupply({ bookId }),
+      createSupply({ bookId }),
+      createSupply({ bookId }),
+    ]);
 
-    const { body: userRespose } = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: user.email,
-        password: 'password',
-      });
+    const { body } = await request(app.getHttpServer())
+      .put(`/books/borrow/${bookId}`)
+      .set({ Authorization: `Bearer ${userToken}` });
 
-    adminToken = adminResponse?.access_token;
-    userToken = userRespose?.access_token;
+    const borrowedBook = await bookRepository.findOne({
+      where: { id: body?.bookId },
+      relations: {
+        supplies: {
+          owner: true,
+        },
+      },
+    });
+
+    expect(borrowedBook?.supplies).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          status: SupplyStatus.BORROWED,
+          owner: expect.objectContaining({
+            id: userId,
+          }),
+        }),
+      ]),
+    );
   });
 
   describe('request as admin', () => {
@@ -71,7 +94,7 @@ describe('AppController (e2e)', () => {
       );
     });
 
-    it('/books/:id (PATCH)', async () => {
+    it('/books/:id (PUT)', async () => {
       const [author1, author2, author3] = await Promise.all([
         createAuthor(),
         createAuthor(),
@@ -80,13 +103,13 @@ describe('AppController (e2e)', () => {
 
       const { id: bookId } = await createBook({
         authors: [author3],
-        isbn: '1234567890123',
+        isbn: '543324232112',
       });
 
       const { body } = await request(app.getHttpServer())
         .put(`/books/${bookId}`)
         .send({
-          isbn: '9788374323574',
+          isbn: '23412512431',
           title: 'New title',
           subtitle: 'New subtitle',
           description: 'New description',
@@ -138,7 +161,37 @@ describe('AppController (e2e)', () => {
       });
 
       expect(statusCode).toEqual(403);
+      expect(body?.message).toEqual('Forbidden resource');
+      expect(body?.error).toEqual('Forbidden');
       expect(foundBook).toBeNull();
+    });
+
+    it('/books/:id (PUT)', async () => {
+      const [author1, author2, author3] = await Promise.all([
+        createAuthor(),
+        createAuthor(),
+        createAuthor(),
+      ]);
+
+      const { id: bookId } = await createBook({
+        authors: [author3],
+        isbn: '3253241232131',
+      });
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .put(`/books/${bookId}`)
+        .send({
+          isbn: '9788374323574',
+          title: 'New title',
+          subtitle: 'New subtitle',
+          description: 'New description',
+          authorIds: [author1.id, author2.id],
+        })
+        .set({ Authorization: `Bearer ${userToken}` });
+
+      expect(statusCode).toEqual(403);
+      expect(body?.message).toEqual('Forbidden resource');
+      expect(body?.error).toEqual('Forbidden');
     });
   });
 });

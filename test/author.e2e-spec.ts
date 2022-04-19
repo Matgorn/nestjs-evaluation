@@ -1,10 +1,10 @@
 import { Author } from '@author/entities/author.entity';
 import { INestApplication } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { getApplication } from '@test/helpers';
+import { getApplication, getUserToken } from '@test/helpers';
 import request from 'supertest';
 import { Repository } from 'typeorm';
-import { createAdmin, createAuthor, createUser } from './factories';
+import { createAuthor } from './factories';
 
 describe('AuthorController', () => {
   let app: INestApplication;
@@ -15,26 +15,8 @@ describe('AuthorController', () => {
   beforeEach(async () => {
     app = await getApplication();
     authorRepository = app.get(getRepositoryToken(Author));
-
-    const admin = await createAdmin();
-    const user = await createUser();
-
-    const { body: adminResponse } = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: admin.email,
-        password: 'password',
-      });
-
-    const { body: userRespose } = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: user.email,
-        password: 'password',
-      });
-
-    adminToken = adminResponse?.access_token;
-    userToken = userRespose?.access_token;
+    adminToken = (await getUserToken(app, { isAdmin: true }))?.token;
+    userToken = (await getUserToken(app))?.token;
   });
 
   describe('request as admin', () => {
@@ -140,6 +122,39 @@ describe('AuthorController', () => {
         expect(body?.message).toEqual('Forbidden resource');
         expect(body?.error).toEqual('Forbidden');
         expect(foundAuthor).toBeNull();
+      });
+    });
+
+    describe('DELETE /author/:id - when removing an author', () => {
+      it('should return forbidden resource error', async () => {
+        const author = await createAuthor();
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .delete(`/authors/${author.id}`)
+          .set({ Authorization: `Bearer ${userToken}` });
+
+        const deletedAuthor = await authorRepository.findOne({
+          where: { id: author.id },
+        });
+
+        expect(statusCode).toEqual(403);
+        expect(body?.message).toEqual('Forbidden resource');
+        expect(body?.error).toEqual('Forbidden');
+        expect(deletedAuthor).toBeTruthy();
+      });
+    });
+
+    describe('PUT /author/:id - when updating an author', () => {
+      it('should update author database entry', async () => {
+        const author = await createAuthor();
+
+        const { statusCode, body } = await request(app.getHttpServer())
+          .put(`/authors/${author.id}`)
+          .set({ Authorization: `Bearer ${userToken}` });
+
+        expect(statusCode).toEqual(403);
+        expect(body?.message).toEqual('Forbidden resource');
+        expect(body?.error).toEqual('Forbidden');
       });
     });
   });
