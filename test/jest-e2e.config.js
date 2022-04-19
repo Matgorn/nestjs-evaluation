@@ -5,7 +5,6 @@ const { compilerOptions } = require('../tsconfig.json');
 module.exports = {
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '..',
-  modulePaths: ['<rootDir>'],
   testEnvironment: 'node',
   testRegex: '.e2e-spec.ts$',
   transform: {
@@ -14,6 +13,7 @@ module.exports = {
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
     prefix: '<rootDir>/',
   }),
+  moduleDirectories: ['node_modules', '<rootDir>'],
   setupFilesAfterEnv: ['./test/factories/index.ts', './test/jest-e2e.setup.ts'],
   watchPlugins: [
     'jest-watch-typeahead/filename',

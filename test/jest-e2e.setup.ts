@@ -6,7 +6,7 @@ beforeEach(async () => {
   const app = await getApplication();
   const connection = app.get(Connection);
 
-  await connection.undoLastMigration();
+  await connection.undoLastMigration({ transaction: 'all' });
 
   await connection.runMigrations();
 });

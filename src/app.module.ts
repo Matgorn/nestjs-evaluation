@@ -28,6 +28,7 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
   ],
   imports: [
     ConfigModule.forRoot({
+      envFilePath: ['.env'],
       validationSchema: Joi.object({
         EMAIL_SERVICE: Joi.string().required(),
         EMAIL_USER: Joi.string().required(),
@@ -36,6 +37,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_USERNAME: Joi.string().required(),
+        POSTGRES_PORT: Joi.number().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
+        APP_PORT: Joi.number().required(),
       }),
     }),
     AuthModule,

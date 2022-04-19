@@ -28,7 +28,10 @@ export class AuthorsController {
 
   @Post('test')
   @Redirect('/authors')
-  //
+  func() {
+    return;
+  }
+
   @Put(':id')
   @Roles(Role.Admin)
   update(@Param('id') id: Author['id'], @Body() authorDto: any) {

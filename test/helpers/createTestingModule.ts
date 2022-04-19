@@ -9,6 +9,7 @@ import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
+import { ConfigModule } from '@nestjs/config';
 
 export class MockAuthGuard {
   async canActivate(context: ExecutionContext) {
@@ -24,7 +25,7 @@ export class MockAuthGuard {
 
 export async function createTestingModule() {
   const testingModule = Test.createTestingModule({
-    imports: [AppModule],
+    imports: [AppModule, ConfigModule.forRoot({ envFilePath: ['.env.test'] })],
   })
     .overrideGuard(JwtAuthGuard)
     .useClass(MockAuthGuard);
