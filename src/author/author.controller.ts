@@ -22,6 +22,7 @@ export class AuthorsController {
   constructor(private authorsService: AuthorsService) {}
 
   @Post()
+  @Roles(Role.Admin)
   create(@Body() authorDto: AuthorDTO) {
     return this.authorsService.create(authorDto);
   }

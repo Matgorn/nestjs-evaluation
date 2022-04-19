@@ -24,5 +24,5 @@ export class RoleEntity {
   name: Role;
 
   @ManyToMany(() => User, (user) => user.roles)
-  users: User[];
+  users?: User[];
 }

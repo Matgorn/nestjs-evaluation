@@ -7,6 +7,7 @@ import { create } from '../helpers/create';
 Factory.define<Book>(Book.name).attrs({
   title: () => faker.commerce.productName(),
   subtitle: () => faker.commerce.product(),
+  description: () => faker.commerce.productDescription(),
 });
 
 export async function createBook(attributes?: Partial<Book>) {

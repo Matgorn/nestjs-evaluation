@@ -27,7 +27,7 @@ import { Book, GROUP_ALL_BOOKS, GROUP_BOOK } from './entities/book.entity';
 
 @Controller('books')
 @UseInterceptors(ClassSerializerInterceptor)
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class BooksController {
   constructor(private booksService: BooksService) {}
   @Get()
@@ -58,6 +58,7 @@ export class BooksController {
       transform: true,
     }),
   )
+  @Roles(Role.Admin)
   createBook(@Body() createBookDto: CreateBookDto) {
     return this.booksService.create(createBookDto);
   }

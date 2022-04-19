@@ -1,4 +1,5 @@
 import { Connection } from 'typeorm';
+import { clearDatabase } from './helpers';
 
 import { getApplication } from './helpers/getApplication';
 
@@ -7,6 +8,7 @@ beforeEach(async () => {
   const connection = app.get(Connection);
 
   await connection.undoLastMigration({ transaction: 'all' });
+  await clearDatabase();
 
   await connection.runMigrations();
 });
